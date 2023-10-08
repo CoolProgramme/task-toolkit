@@ -23,8 +23,8 @@ def get_repo_info(repo):
     return title, f"https://github.com{href}", description, programming_language
 
 
-def get_proxies(proxies):
-    return {"http": proxies} if proxies else None
+def get_proxies(proxy_type, proxies):
+    return {proxy_type: proxies} if proxy_type and proxies else None
 
 
 def setup_retry_strategy():
@@ -43,7 +43,7 @@ def create_data_directory():
     return dir_name
 
 
-def backups(name, proxies):
+def backups(name, proxy_type, proxies):
     if not name:
         print(f"--name GitHub用户名是必须的！")
         return
@@ -55,7 +55,7 @@ def backups(name, proxies):
 
     while True:
         try:
-            r = session.get(f"https://github.com/{name}", proxies=get_proxies(proxies), params=params)
+            r = session.get(f"https://github.com/{name}", proxies=get_proxies(proxy_type, proxies), params=params)
         except requests.exceptions.RequestException as e:
             print(f"Request failed: {e}")
             return
@@ -86,9 +86,10 @@ def backups(name, proxies):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--name", type=str, default=None, help="Specify the name")
+    parser.add_argument("--proxy_type", type=str, default=None, help="Specify the proxy type (http or socket)")
     parser.add_argument("--proxies", type=str, default=None, help="Specify the proxies")
     args = parser.parse_args()
-    backups(args.name, args.proxies)
+    backups(args.name, args.proxy_type, args.proxies)
 
 
 if __name__ == '__main__':
